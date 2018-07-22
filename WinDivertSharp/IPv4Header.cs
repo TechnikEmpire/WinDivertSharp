@@ -49,13 +49,19 @@ namespace WinDivertSharp
         /// Version : 4
         private byte bitvector1;
 
-        /// UINT8->unsigned char
+        /// <summary>
+        /// Gets or sets the type of service.
+        /// </summary>
         public byte TOS;
 
-        /// UINT16->unsigned short
+        /// <summary>
+        /// Gets or sets the header length.
+        /// </summary>
         public ushort Length;
 
-        /// UINT16->unsigned short
+        /// <summary>
+        /// Gets or sets the ID.
+        /// </summary>
         public ushort Id;
 
         /// <summary>
