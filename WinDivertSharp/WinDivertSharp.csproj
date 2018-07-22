@@ -7,8 +7,14 @@
     <Company>Technik Empire</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/basil00/Divert/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/TechnikEmpire/WinDivertSharp/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/TechnikEmpire/WinDivertSharp</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/TechnikEmpire/WinDivertSharp.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>WinDivert packet-sniffer packet firewall divert-sockets packet-capture</PackageTags>
+    <PackageReleaseNotes>Initial release of a complete version 1.4.2.</PackageReleaseNotes>
+    <Description>A safe, minimal .NET binding over WinDivert</Description>
+    <Copyright>2018 basil, 2018 Jesse Nicholson</Copyright>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
