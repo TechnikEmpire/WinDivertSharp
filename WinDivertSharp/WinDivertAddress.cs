@@ -32,6 +32,8 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+using System;
+using System.Collections.Specialized;
 using System.Runtime.InteropServices;
 
 namespace WinDivertSharp
@@ -43,6 +45,18 @@ namespace WinDivertSharp
     [StructLayout(LayoutKind.Sequential)]
     public struct WinDivertAddress
     {
+        [Flags]
+        private enum SettingsBitVector : byte
+        {   
+            Direction = 1 << 0,
+            Loopback = 1 << 1,
+            Impostor = 1 << 2,
+            PseudoIPChecksum = 1 << 3,
+            PseudoTCPChecksum = 1 << 4,
+            PseudoUDPChecksum = 1 << 5,
+            Reserved1 = 1 << 6,
+            Reserved2 = 1 << 7
+        }
         /// <summary>
         /// Gets or sets the timestamp.
         /// </summary>
@@ -75,7 +89,20 @@ namespace WinDivertSharp
         /// PseudoTCPChecksum : 1
         /// PseudoUDPChecksum : 1 
         /// Reserved : 2
-        private byte bitvector1;
+        private SettingsBitVector bitvector1;
+
+        //private SettingsBitVector bitvector1
+        //{
+        //    get
+        //    {
+        //        return (SettingsBitVector)bitvector1z;
+        //    }
+        //
+        //    set
+        //    {
+        //        bitvector1z = (byte)value;
+        //    }
+        //}
 
         /// <summary>
         /// Gets or sets the direction.
@@ -87,12 +114,25 @@ namespace WinDivertSharp
         public WinDivertDirection Direction
         {
             get
-            {
-                return (WinDivertDirection)((byte)((this.bitvector1 & 1u)));
+            {   
+                return bitvector1.HasFlag(SettingsBitVector.Direction) ? WinDivertDirection.Inbound : WinDivertDirection.Outbound;
             }
             set
             {
-                this.bitvector1 = ((byte)(((byte)value | this.bitvector1)));
+                switch (value)
+                {
+                    case WinDivertDirection.Inbound:
+                        {
+                            bitvector1 |= SettingsBitVector.Direction;
+                        }
+                        break;
+
+                    case WinDivertDirection.Outbound:
+                        {
+                            bitvector1 &= ~SettingsBitVector.Direction;
+                        }
+                        break;
+                }
             }
         }
 
@@ -110,13 +150,24 @@ namespace WinDivertSharp
         {
             get
             {
-                return ((byte)(((this.bitvector1 & 2u)
-                            / 2))) == 1;
+                return bitvector1.HasFlag(SettingsBitVector.Loopback) ? true : false;
             }
             set
             {
-                this.bitvector1 = ((byte)((((value ? 1U : 0U) * 2)
-                            | this.bitvector1)));
+                switch (value)
+                {
+                    case true:
+                        {
+                            bitvector1 |= SettingsBitVector.Loopback;
+                        }
+                        break;
+
+                    case false:
+                        {
+                            bitvector1 &= ~SettingsBitVector.Loopback;
+                        }
+                        break;
+                }
             }
         }
 
@@ -137,13 +188,24 @@ namespace WinDivertSharp
         {
             get
             {
-                return ((byte)(((this.bitvector1 & 4u)
-                            / 4))) == 1;
+                return bitvector1.HasFlag(SettingsBitVector.Impostor) ? true : false;
             }
             set
             {
-                this.bitvector1 = ((byte)((((value ? 1U : 0U) * 4)
-                            | this.bitvector1)));
+                switch (value)
+                {
+                    case true:
+                        {
+                            bitvector1 |= SettingsBitVector.Impostor;
+                        }
+                        break;
+
+                    case false:
+                        {
+                            bitvector1 &= ~SettingsBitVector.Impostor;
+                        }
+                        break;
+                }
             }
         }
 
@@ -154,13 +216,24 @@ namespace WinDivertSharp
         {
             get
             {
-                return ((byte)(((this.bitvector1 & 8u)
-                            / 8))) == 1;
+                return bitvector1.HasFlag(SettingsBitVector.PseudoIPChecksum) ? true : false;
             }
             set
             {
-                this.bitvector1 = ((byte)((((value ? 1U : 0U) * 8)
-                            | this.bitvector1)));
+                switch (value)
+                {
+                    case true:
+                        {
+                            bitvector1 |= SettingsBitVector.PseudoIPChecksum;
+                        }
+                        break;
+
+                    case false:
+                        {
+                            bitvector1 &= ~SettingsBitVector.PseudoIPChecksum;
+                        }
+                        break;
+                }
             }
         }
 
@@ -171,13 +244,24 @@ namespace WinDivertSharp
         {
             get
             {
-                return ((byte)(((this.bitvector1 & 16u)
-                            / 16))) == 1;
+                return bitvector1.HasFlag(SettingsBitVector.PseudoTCPChecksum) ? true : false;
             }
             set
             {
-                this.bitvector1 = ((byte)((((value ? 1U : 0U) * 16)
-                            | this.bitvector1)));
+                switch (value)
+                {
+                    case true:
+                        {
+                            bitvector1 |= SettingsBitVector.PseudoTCPChecksum;
+                        }
+                        break;
+
+                    case false:
+                        {
+                            bitvector1 &= ~SettingsBitVector.PseudoTCPChecksum;
+                        }
+                        break;
+                }
             }
         }
 
@@ -188,30 +272,24 @@ namespace WinDivertSharp
         {
             get
             {
-                return ((byte)(((this.bitvector1 & 32u)
-                            / 32))) == 1;
+                return bitvector1.HasFlag(SettingsBitVector.PseudoUDPChecksum) ? true : false;
             }
             set
             {
-                this.bitvector1 = ((byte)((((value ? 1U : 0U) * 32)
-                            | this.bitvector1)));
-            }
-        }
+                switch (value)
+                {
+                    case true:
+                        {
+                            bitvector1 |= SettingsBitVector.PseudoUDPChecksum;
+                        }
+                        break;
 
-        /// <summary>
-        /// Gets or sets the reserved bit(s).
-        /// </summary>
-        public uint Reserved
-        {
-            get
-            {
-                return ((byte)(((this.bitvector1 & 192u)
-                            / 64)));
-            }
-            set
-            {
-                this.bitvector1 = ((byte)(((value * 64)
-                            | this.bitvector1)));
+                    case false:
+                        {
+                            bitvector1 &= ~SettingsBitVector.PseudoUDPChecksum;
+                        }
+                        break;
+                }
             }
         }
 

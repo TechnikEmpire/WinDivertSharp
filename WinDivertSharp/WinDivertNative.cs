@@ -171,6 +171,22 @@ namespace WinDivertSharp
         [DllImport("WinDivert.dll", EntryPoint = "WinDivertHelperCalcChecksums", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern uint WinDivertHelperCalcChecksums(IntPtr pPacket, uint packetLen, [In()] ref WinDivertAddress pAddr, ulong flags);
 
+        /// Return Type: UINT->unsigned int
+        ///pPacket: PVOID->void*
+        ///packetLen: UINT->unsigned int
+        ///pAddr: PWINDIVERT_ADDRESS->Anonymous_33ad92c9_0104_417e_989a_2fdd4b3efcc1*
+        ///flags: UINT64->unsigned __int64
+        [DllImport("WinDivert.dll", EntryPoint = "WinDivertHelperCalcChecksums", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern uint WinDivertHelperCalcChecksums(IntPtr pPacket, uint packetLen, [In()] IntPtr ignoredAddress, ulong flags);
+
+        /// Return Type: UINT->unsigned int
+        ///pPacket: PVOID->void*
+        ///packetLen: UINT->unsigned int
+        ///pAddr: PWINDIVERT_ADDRESS->Anonymous_33ad92c9_0104_417e_989a_2fdd4b3efcc1*
+        ///flags: UINT64->unsigned __int64
+        [DllImport("WinDivert.dll", EntryPoint = "WinDivertHelperCalcChecksums", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern uint WinDivertHelperCalcChecksums(byte* pPacket, uint packetLen, [In()] IntPtr ignoredAddress, ulong flags);
+
         /// Return Type: BOOL->int
         ///filter: char*
         ///layer: WINDIVERT_LAYER->Anonymous_13846946_b76a_4250_9642_c2122691f126

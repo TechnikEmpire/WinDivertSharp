@@ -33,7 +33,6 @@
  */
 
 using System;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 
@@ -216,12 +215,15 @@ namespace WinDivertSharp
         {
             fixed (WinDivertAddress* pAddress = &address)
             {
-                fixed (uint* pReadLen = &readLen)
+                fixed (NativeOverlapped* pOverlapped = &lpOverlapped)
                 {
-                    // Presently, flags is simply "reserved"
-                    var result = WinDivertNative.WinDivertRecvEx(handle, packet.BufferPointer, (uint)packet.Length, 0, ref address, ref readLen, ref lpOverlapped);
+                    fixed (uint* pReadLen = &readLen)
+                    {
+                        // Presently, flags is simply "reserved"
+                        var result = WinDivertNative.WinDivertRecvEx(handle, packet.BufferPointer, (uint)packet.Length, 0, ref address, ref readLen, ref lpOverlapped);
 
-                    return result;
+                        return result;
+                    }
                 }
             }
         }
@@ -252,7 +254,7 @@ namespace WinDivertSharp
         /// ERROR_IO_PENDING indicates that the overlapped operation has been successfully initiated
         /// and that completion will be indicated at a later time. All other codes indicate an error.
         /// </returns>
-        public static bool WinDivertRecvEx(IntPtr handle, WinDivertBuffer packet, uint flags, ref WinDivertAddress address, NativeOverlapped lpOverlapped)
+        public static bool WinDivertRecvEx(IntPtr handle, WinDivertBuffer packet, uint flags, ref WinDivertAddress address, ref NativeOverlapped lpOverlapped)
         {
             fixed (WinDivertAddress* pAddress = &address)
             {
@@ -368,7 +370,7 @@ namespace WinDivertSharp
         /// ERROR_IO_PENDING indicates that the overlapped operation has been successfully initiated
         /// and that completion will be indicated at a later time. All other codes indicate an error.
         /// </returns>
-        public static bool WinDivertSendEx(IntPtr handle, WinDivertBuffer packet, uint packetLength, ulong flags, ref WinDivertAddress address, ref uint sendLen, NativeOverlapped lpOverlapped)
+        public static bool WinDivertSendEx(IntPtr handle, WinDivertBuffer packet, uint packetLength, ulong flags, ref WinDivertAddress address, ref uint sendLen, ref NativeOverlapped lpOverlapped)
         {
             fixed (WinDivertAddress* pAddress = &address)
             {
@@ -411,7 +413,7 @@ namespace WinDivertSharp
         public static bool WinDivertSendEx(IntPtr handle, WinDivertBuffer packet, uint packetLength, ulong flags, ref WinDivertAddress address)
         {
             fixed (WinDivertAddress* pAddress = &address)
-            {   
+            {
                 var result = WinDivertNative.WinDivertSendEx(handle, packet.BufferPointer, packetLength, flags, ref address, IntPtr.Zero, IntPtr.Zero);
 
                 return result;
@@ -486,27 +488,6 @@ namespace WinDivertSharp
         /// <param name="packetDataLength">
         /// The total length of the packet pPacket.
         /// </param>
-        /// <param name="ipHeader">
-        /// Output reference to the <seealso cref="IPv4Header" />.
-        /// </param>
-        /// <param name="ipv6Header">
-        /// Output reference to the <seealso cref="IPv6Header" />.
-        /// </param>
-        /// <param name="icmpHeader">
-        /// Output reference to the <seealso cref="IcmpV4Header" />.
-        /// </param>
-        /// <param name="icmpv6Header">
-        /// Output reference to the <seealso cref="IcmpV6Header" />.
-        /// </param>
-        /// <param name="tcpHeader">
-        /// Output reference to the <seealso cref="TcpHeader" />.
-        /// </param>
-        /// <param name="udpHeader">
-        /// Output reference to the <seealso cref="UdpHeader" />.
-        /// </param>
-        /// <param name="data">
-        /// Output reference to the packet's data/payload.
-        /// </param>
         /// <returns>
         /// TRUE if all expected (non-NULL) outputs were present, FALSE otherwise. Note that FALSE
         /// may sometimes be a legitimate return value, e.g., when both ppIpHdr and ppIpv6Hdr are non-NULL.
@@ -519,54 +500,30 @@ namespace WinDivertSharp
         /// does not do any verification of the header/payload contents beyond checking the header
         /// length and any other minimal information required for parsing.
         /// </remarks>
-        public static bool WinDivertHelperParsePacket(WinDivertBuffer packet, uint packetDataLength, ref IPv4Header? ipHeader, ref IPv6Header? ipv6Header, ref IcmpV4Header? icmpHeader, ref IcmpV6Header? icmpv6Header, ref TcpHeader? tcpHeader, ref UdpHeader? udpHeader, ref Span<byte> data)
+        public static WinDivertParseResult WinDivertHelperParsePacket(WinDivertBuffer packet, uint packetDataLength)
         {
-            IPv4Header* pip4Header = null;
-            IPv6Header* pip6Header = null;
-            IcmpV4Header* picmp4Header = null;
-            IcmpV6Header* picmp6Header = null;
-            TcpHeader* ptcpHdr = null;
-            UdpHeader* udpHdr = null;
+            IPv4Header* _pip4Header = null;
+            IPv6Header* _pip6Header = null;
+            IcmpV4Header* _picmp4Header = null;
+            IcmpV6Header* _picmp6Header = null;
+            TcpHeader* _ptcpHdr = null;
+            UdpHeader* _pudpHdr = null;
 
-            byte* pdataPtr;
-            uint dataLen = 0;
+            byte* _pdataPtr;
+            uint _dataLen = 0;
 
-            var retVal = WinDivertNative.WinDivertHelperParsePacket(packet.BufferPointer, packetDataLength, &pip4Header, &pip6Header, &picmp4Header, &picmp6Header, &ptcpHdr, &udpHdr, &pdataPtr, ref dataLen);
+            var retVal = new WinDivertParseResult();
 
-            if (pip4Header != null)
-            {
-                ipHeader = Unsafe.AsRef<IPv4Header>(pip4Header);
-            }
+            WinDivertNative.WinDivertHelperParsePacket(packet.BufferPointer, packetDataLength, &_pip4Header, &_pip6Header, &_picmp4Header, &_picmp6Header, &_ptcpHdr, &_pudpHdr, &_pdataPtr, ref _dataLen);
 
-            if (pip6Header != null)
-            {
-                ipv6Header = Unsafe.AsRef<IPv6Header>(pip6Header);
-            }
-
-            if (picmp4Header != null)
-            {
-                icmpHeader = Unsafe.AsRef<IcmpV4Header>(picmp4Header);
-            }
-
-            if (picmp6Header != null)
-            {
-                icmpv6Header = Unsafe.AsRef<IcmpV6Header>(picmp6Header);
-            }
-
-            if (ptcpHdr != null)
-            {
-                tcpHeader = Unsafe.AsRef<TcpHeader>(ptcpHdr);
-            }
-
-            if (udpHdr != null)
-            {
-                udpHeader = Unsafe.AsRef<UdpHeader>(udpHdr);
-            }
-
-            if (pdataPtr != null && dataLen > 0)
-            {
-                data = new Span<byte>(pdataPtr, (int)dataLen);
-            }
+            retVal._pip4Header = _pip4Header;
+            retVal._pip6Header = _pip6Header;
+            retVal._picmp4Header = _picmp4Header;
+            retVal._picmp6Header = _picmp6Header;
+            retVal._ptcpHdr = _ptcpHdr;
+            retVal._pudpHdr = _pudpHdr;
+            retVal._pdataPtr = _pdataPtr;
+            retVal._dataLen = _dataLen;
 
             return retVal;
         }
@@ -595,8 +552,33 @@ namespace WinDivertSharp
         {
             fixed (WinDivertAddress* pAddress = &address)
             {
-                Console.WriteLine("NUM: {0}", (ulong)flags);
                 return WinDivertNative.WinDivertHelperCalcChecksums(packet.BufferPointer, packetLength, ref address, (ulong)flags);
+            }
+        }
+
+        /// <summary>
+        /// (Re)calculates the checksum for any IPv4/ICMP/ICMPv6/TCP/UDP checksum present in the
+        /// given packet. Individual checksum calculations may be disabled via the appropriate flag.
+        /// Typically this function should be invoked on a modified packet before it is injected with <seealso cref="WinDivertSend(IntPtr, WinDivertBuffer, uint, ref WinDivertAddress, ref uint)" />.
+        /// </summary>
+        /// <param name="packet">
+        /// The packet to be modified.
+        /// </param>
+        /// <param name="packetLength">
+        /// The total length of the packet pPacket.
+        /// </param>
+        /// <param name="flags">
+        /// One or more <seealso cref="WinDivertChecksumHelperParam" /> flags.
+        /// </param>
+        /// <returns>
+        /// The number of checksums calculated.
+        /// </returns>
+        public static uint WinDivertHelperCalcChecksums(WinDivertBuffer packet, uint packetLength, WinDivertChecksumHelperParam flags)
+        {
+            return WinDivertNative.WinDivertHelperCalcChecksums(packet.BufferPointer, packetLength, IntPtr.Zero, (ulong)flags);
+            //fixed (byte* buff = packet._buffer)
+            {
+                //return WinDivertNative.WinDivertHelperCalcChecksums(buff, packetLength, IntPtr.Zero, (ulong)flags);
             }
         }
 

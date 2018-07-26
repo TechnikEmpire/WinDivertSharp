@@ -44,7 +44,7 @@ namespace WinDivertSharp
     /// Represents an IPV6 header.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct IPv6Header
+    public struct IPv6Header
     {
         /// TrafficClass0 : 4
         /// Version : 4
@@ -75,8 +75,10 @@ namespace WinDivertSharp
         /// <summary>
         /// Private member for <see cref="SrcAddr"/>
         /// </summary>
-        //[MarshalAs(UnmanagedType.ByValArray, SizeConst = 4, ArraySubType = UnmanagedType.U4)]
-        private fixed uint _srcAddr[4];
+        private uint _srcAddrA;
+        private uint _srcAddrB;
+        private uint _srcAddrC;
+        private uint _srcAddrD;
 
         /// <summary>
         /// Gets or sets the source IP address.
@@ -88,41 +90,35 @@ namespace WinDivertSharp
         {
             get
             {
-                fixed (uint* addr = this._srcAddr)
-                {
-                    var b1 = BitConverter.GetBytes(addr[0]);
-                    var b2 = BitConverter.GetBytes(addr[1]);
-                    var b3 = BitConverter.GetBytes(addr[2]);
-                    var b4 = BitConverter.GetBytes(addr[3]);
-                    var bytes = new byte[] {
+                var b1 = BitConverter.GetBytes(_srcAddrA);
+                var b2 = BitConverter.GetBytes(_srcAddrB);
+                var b3 = BitConverter.GetBytes(_srcAddrC);
+                var b4 = BitConverter.GetBytes(_srcAddrD);
+                var bytes = new byte[] {
                         b1[0], b1[1], b1[2], b1[3],
                         b2[0], b2[1], b2[2], b2[3],
                         b3[0], b3[1], b3[2], b3[3],
                         b4[0], b4[1], b4[2], b4[3]
                     };
 
-                    return new IPAddress(bytes);
-                }
+                return new IPAddress(bytes);
             }
 
             set
             {
-                fixed (uint* addr = this._srcAddr)
+                var valueBytes = value.GetAddressBytes();
+
+                Debug.Assert(valueBytes.Length == 16, "Not a valid IPV6 address.");
+
+                if (valueBytes.Length != 16)
                 {
-                    var valueBytes = value.GetAddressBytes();
-
-                    Debug.Assert(valueBytes.Length == 16, "Not a valid IPV6 address.");
-
-                    if (valueBytes.Length != 16)
-                    {
-                        throw new ArgumentException("Not a valid IPV6 address.", nameof(SrcAddr));
-                    }
-
-                    addr[0] = BitConverter.ToUInt32(valueBytes, 0);
-                    addr[1] = BitConverter.ToUInt32(valueBytes, 4);
-                    addr[2] = BitConverter.ToUInt32(valueBytes, 8);
-                    addr[3] = BitConverter.ToUInt32(valueBytes, 12);
+                    throw new ArgumentException("Not a valid IPV6 address.", nameof(SrcAddr));
                 }
+
+                _srcAddrA = BitConverter.ToUInt32(valueBytes, 0);
+                _srcAddrB = BitConverter.ToUInt32(valueBytes, 4);
+                _srcAddrC = BitConverter.ToUInt32(valueBytes, 8);
+                _srcAddrD = BitConverter.ToUInt32(valueBytes, 12);
             }
         }
 
@@ -130,7 +126,10 @@ namespace WinDivertSharp
         /// Private member for <see cref="DstAddr"/>
         /// </summary>
         //[MarshalAs(UnmanagedType.ByValArray, SizeConst = 4, ArraySubType = UnmanagedType.U4)]
-        private fixed uint _dstAddr[4];
+        private uint _dstAddrA;
+        private uint _dstAddrB;
+        private uint _dstAddrC;
+        private uint _dstAddrD;
 
         /// <summary>
         /// Gets or sets the destination IP address.
@@ -142,41 +141,35 @@ namespace WinDivertSharp
         {
             get
             {
-                fixed (uint* addr = this._dstAddr)
-                {
-                    var b1 = BitConverter.GetBytes(addr[0]);
-                    var b2 = BitConverter.GetBytes(addr[1]);
-                    var b3 = BitConverter.GetBytes(addr[2]);
-                    var b4 = BitConverter.GetBytes(addr[3]);
-                    var bytes = new byte[] {
+                var b1 = BitConverter.GetBytes(_dstAddrA);
+                var b2 = BitConverter.GetBytes(_dstAddrB);
+                var b3 = BitConverter.GetBytes(_dstAddrC);
+                var b4 = BitConverter.GetBytes(_dstAddrD);
+                var bytes = new byte[] {
                         b1[0], b1[1], b1[2], b1[3],
                         b2[0], b2[1], b2[2], b2[3],
                         b3[0], b3[1], b3[2], b3[3],
                         b4[0], b4[1], b4[2], b4[3]
                     };
 
-                    return new IPAddress(bytes);
-                }
+                return new IPAddress(bytes);
             }
 
             set
             {
-                fixed (uint* addr = this._dstAddr)
+                var valueBytes = value.GetAddressBytes();
+
+                Debug.Assert(valueBytes.Length == 16, "Not a valid IPV6 address.");
+
+                if (valueBytes.Length != 16)
                 {
-                    var valueBytes = value.GetAddressBytes();
-
-                    Debug.Assert(valueBytes.Length == 16, "Not a valid IPV6 address.");
-
-                    if (valueBytes.Length != 16)
-                    {
-                        throw new ArgumentException("Not a valid IPV6 address.", nameof(SrcAddr));
-                    }
-
-                    addr[0] = BitConverter.ToUInt32(valueBytes, 0);
-                    addr[1] = BitConverter.ToUInt32(valueBytes, 4);
-                    addr[2] = BitConverter.ToUInt32(valueBytes, 8);
-                    addr[3] = BitConverter.ToUInt32(valueBytes, 12);
+                    throw new ArgumentException("Not a valid IPV6 address.", nameof(SrcAddr));
                 }
+
+                _dstAddrA = BitConverter.ToUInt32(valueBytes, 0);
+                _dstAddrB = BitConverter.ToUInt32(valueBytes, 4);
+                _dstAddrC = BitConverter.ToUInt32(valueBytes, 8);
+                _dstAddrD = BitConverter.ToUInt32(valueBytes, 12);
             }
         }
 
