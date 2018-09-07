@@ -45,7 +45,7 @@ using WinDivertSharp.WinAPI;
 namespace WinDivertSharpTests
 {
     [TestFixture]
-    public class WinDivertTests
+    public unsafe class WinDivertTests
     {
         private static TestData s_testData;
 
@@ -737,22 +737,22 @@ namespace WinDivertSharpTests
 
             var result = WinDivert.WinDivertHelperParsePacket(winDivertBuffer, winDivertBuffer.Length);
 
-            Assert.AreNotEqual(result.IsIPv4, false, "IPv4 header should not be null.");
-            Assert.AreNotEqual(result.TcpHeader, false, "Tcp header should not be null.");
+            Assert.AreNotEqual(result.IPv4Header != null, false, "IPv4 header should not be null.");
+            Assert.AreNotEqual(result.TcpHeader != null, false, "Tcp header should not be null.");
 
             //pdmIpv4.UpdateCalculatedValues();
             //pdmIpv4.CalculateIPChecksum();
 
             //pdmTcp.UpdateCalculatedValues();
 
-            Assert.AreEqual(ipPacket.SourceAddress, result.IPv4Header.SrcAddr, "Source IP addresses do not match.");
-            Assert.AreEqual(ipPacket.DestinationAddress, result.IPv4Header.DstAddr, "Destination IP addresses do not match.");
+            Assert.AreEqual(ipPacket.SourceAddress, result.IPv4Header->SrcAddr, "Source IP addresses do not match.");
+            Assert.AreEqual(ipPacket.DestinationAddress, result.IPv4Header->DstAddr, "Destination IP addresses do not match.");
 
-            Assert.AreEqual(tcpPacket.Checksum, result.TcpHeader.Checksum, "Checksums do not match.");
-            Assert.AreEqual(ipPacket.Checksum, result.TcpHeader.Checksum, "Checksums do not match.");
+            Assert.AreEqual(tcpPacket.Checksum, result.TcpHeader->Checksum, "Checksums do not match.");
+            Assert.AreEqual(ipPacket.Checksum, result.TcpHeader->Checksum, "Checksums do not match.");
 
             Assert.AreEqual(tcpPacket.Checksum, 0, "Checksums do not match.");
-            Assert.AreEqual(result.TcpHeader.Checksum, 0, "Checksums do not match.");
+            Assert.AreEqual(result.TcpHeader->Checksum, 0, "Checksums do not match.");
 
             
 
@@ -768,13 +768,13 @@ namespace WinDivertSharpTests
 
             //Assert.AreEqual(tcpPacket.Checksum, result.TcpHeader.Checksum, "Checksums do not match.");
             
-            Assert.AreEqual(ipPacket.Checksum, (ushort)IPAddress.NetworkToHostOrder((short)result.IPv4Header.Checksum), "Checksums do not match.");
-            Assert.AreEqual(tcpPacket.Checksum, (ushort)IPAddress.NetworkToHostOrder((short)result.TcpHeader.Checksum), "Checksums do not match.");
+            Assert.AreEqual(ipPacket.Checksum, (ushort)IPAddress.NetworkToHostOrder((short)result.IPv4Header->Checksum), "Checksums do not match.");
+            Assert.AreEqual(tcpPacket.Checksum, (ushort)IPAddress.NetworkToHostOrder((short)result.TcpHeader->Checksum), "Checksums do not match.");
 
             ipPacket.SourceAddress = IPAddress.Parse("8.8.8.8");
-            result.IPv4Header.SrcAddr = IPAddress.Parse("8.8.8.8");
+            result.IPv4Header->SrcAddr = IPAddress.Parse("8.8.8.8");
 
-            result.TcpHeader.SrcPort = (ushort)IPAddress.NetworkToHostOrder((short)8888);
+            result.TcpHeader->SrcPort = (ushort)IPAddress.NetworkToHostOrder((short)8888);
             tcpPacket.SourcePort = 8888;
 
             tcpPacket.CalculateTCPChecksum();
@@ -789,8 +789,8 @@ namespace WinDivertSharpTests
 
             //Assert.AreEqual(tcpPacket.Checksum, result.TcpHeader.Checksum, "Checksums do not match.");
 
-            Assert.AreEqual(ipPacket.Checksum, (ushort)IPAddress.NetworkToHostOrder((short)result.IPv4Header.Checksum), "Checksums do not match.");
-            Assert.AreEqual(tcpPacket.Checksum, (ushort)IPAddress.NetworkToHostOrder((short)result.TcpHeader.Checksum), "Checksums do not match.");
+            Assert.AreEqual(ipPacket.Checksum, (ushort)IPAddress.NetworkToHostOrder((short)result.IPv4Header->Checksum), "Checksums do not match.");
+            Assert.AreEqual(tcpPacket.Checksum, (ushort)IPAddress.NetworkToHostOrder((short)result.TcpHeader->Checksum), "Checksums do not match.");
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

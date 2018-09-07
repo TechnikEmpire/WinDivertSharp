@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>1.4.3.2</Version>
+    <Version>1.4.3.3</Version>
     <Authors>Jesse Nicholson</Authors>
     <Company>Technik Empire</Company>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -12,12 +12,11 @@
     <RepositoryUrl>https://github.com/TechnikEmpire/WinDivertSharp.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>WinDivert packet-sniffer packet firewall divert-sockets packet-capture</PackageTags>
-    <PackageReleaseNotes>Now includes a target to output native assemblies so that they copy correctly, but .NET Standard's shortcomings still prevent this from working when the package is a reference of a reference.
-Removes random console output accidentally committed.</PackageReleaseNotes>
+    <PackageReleaseNotes>Changes this to an unsafe library. Users must now enable unsafe code and perform raw pointer access, just like using the real native library. The reason for this is that we're getting mysterious errors that I can't even be bothered to attempt to fully understand by holding the user's hand like a baby and trying to hide pointer access away from them. If a user doesn't know to perform null checks, or thinks that there's such a thing as "safe" code, then they simply need to go away and hush now.</PackageReleaseNotes>
     <Description>A safe, minimal .NET binding over WinDivert</Description>
     <Copyright>2018 basil, 2018 Jesse Nicholson</Copyright>
-    <AssemblyVersion>1.4.3.2</AssemblyVersion>
-    <FileVersion>1.4.3.2</FileVersion>
+    <AssemblyVersion>1.4.3.3</AssemblyVersion>
+    <FileVersion>1.4.3.3</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -41,11 +40,6 @@ Removes random console output accidentally committed.</PackageReleaseNotes>
       <Pack>true</Pack>
       <PackagePath>build\</PackagePath>
     </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="System.Memory" Version="4.5.1" />
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.1" />
   </ItemGroup>
 
   <Target Name="CollectRuntimeOutputs" BeforeTargets="_GetPackageFiles">

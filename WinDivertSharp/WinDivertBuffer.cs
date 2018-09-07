@@ -139,43 +139,6 @@ namespace WinDivertSharp
         }
 
         /// <summary>
-        /// Exports the buffer to a read only memory object.
-        /// </summary>
-        /// <param name="index">
-        /// The optional start index.
-        /// </param>
-        /// <returns>
-        /// The buffer at the specified index and length as a read only memory object.
-        /// </returns>
-        /// <exception cref="IndexOutOfRangeException">
-        /// Will throw if the supplied index is out of range.
-        /// </exception>
-        public ReadOnlyMemory<byte> ToReadOnlyMemory(uint index = 0)
-        {
-            return new ReadOnlyMemory<byte>(_buffer, 0, _buffer.Length);
-        }
-
-        /// <summary>
-        /// Exports the buffer to a read only memory object.
-        /// </summary>
-        /// <param name="index">
-        /// The optional start index.
-        /// </param>
-        /// <param name="length">
-        /// The optional length.
-        /// </param>
-        /// <returns>
-        /// The buffer at the specified index and length as a read only memory object.
-        /// </returns>
-        /// <exception cref="IndexOutOfRangeException">
-        /// Will throw if the supplied index is out of range.
-        /// </exception>
-        public ReadOnlyMemory<byte> ToReadOnlyMemory(uint index, uint length)
-        {
-            return new ReadOnlyMemory<byte>(_buffer, 0, (int)length);
-        }
-
-        /// <summary>
         /// Gets the length of the buffer.
         /// </summary>
         public uint Length
