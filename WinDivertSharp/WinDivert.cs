@@ -610,7 +610,7 @@ namespace WinDivertSharp
             char* pErrorString = null;
 
             uint errPosTmp = 0;
-            var retVal = WinDivertNative.WinDivertHelperCheckFilter(filter, layer, &pErrorString, ref errorPosition);
+            var retVal = WinDivertNative.WinDivertHelperCheckFilter(filter, layer, &pErrorString, ref errPosTmp);
             if (pErrorString != null)
             {
                 errorMessage = Marshal.PtrToStringAnsi((IntPtr)pErrorString);
