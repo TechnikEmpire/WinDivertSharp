@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0-windows</TargetFramework>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Platforms>x64;x86</Platforms>
+    <PackageId>WinDivertSharpSandbox</PackageId>
+    <Authors>TechnikEmpire</Authors>
+    <Copyright>Copyright ©  2018</Copyright>
+    <Company />
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputPath>bin\Release\x64\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <OutputPath>bin\Release\x86\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutputPath>bin\Debug\x64\</OutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <OutputPath>bin\Debug\x86\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\WinDivertSharp\WinDivertSharp.csproj" />
+  </ItemGroup>
+
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="sc stop WinDivert1.4&#xD;&#xA;xcopy /E /Y /C &quot;$(ProjectDir)\Lib\WinDivert\$(PlatformName)\*.dll&quot; &quot;$(TargetDir)\&quot;&#xD;&#xA;xcopy /E /Y /C &quot;$(ProjectDir)\Lib\WinDivert\$(PlatformName)\*.sys&quot; &quot;$(TargetDir)\&quot;" />
+  </Target>
+
+</Project>

@@ -1,0 +1,88 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Version>1.4.3.3</Version>
+    <Authors>Jesse Nicholson</Authors>
+    <Company>Technik Empire</Company>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageProjectUrl>https://github.com/TechnikEmpire/WinDivertSharp</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/TechnikEmpire/WinDivertSharp.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>WinDivert packet-sniffer packet firewall divert-sockets packet-capture</PackageTags>
+    <PackageReleaseNotes>Changes this to an unsafe library. Users must now enable unsafe code and perform raw pointer access, just like using the real native library. The reason for this is that we're getting mysterious errors that I can't even be bothered to attempt to fully understand by holding the user's hand like a baby and trying to hide pointer access away from them. If a user doesn't know to perform null checks, or thinks that there's such a thing as "safe" code, then they simply need to go away and hush now.</PackageReleaseNotes>
+    <Description>A safe, minimal .NET binding over WinDivert</Description>
+    <Copyright>2018 basil, 2018 Jesse Nicholson</Copyright>
+    <AssemblyVersion>1.4.3.3</AssemblyVersion>
+    <FileVersion>1.4.3.3</FileVersion>
+    <Platforms>x64;x86</Platforms>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputPath>bin\Release\x64\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputPath>bin\Release\x86\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputPath>bin\Debug\x64\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputPath>bin\Debug\x86\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Lib\**" />
+    <EmbeddedResource Remove="Lib\**" />
+    <None Remove="Lib\**" />
+    <None Include="../LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup Label="dotnet pack instructions">
+    <Content Include="build\*.targets">
+      <Pack>true</Pack>
+      <PackagePath>build\</PackagePath>
+    </Content>
+  </ItemGroup>
+
+  <Target Name="CollectRuntimeOutputs" BeforeTargets="_GetPackageFiles">
+    <!-- Collect these items inside a target that runs after build but before packaging. -->
+    <ItemGroup>
+      <Content Include="$(OutputPath)\x86\*.dll;$(OutputPath)\x86\*.sys;">
+        <Pack>true</Pack>
+        <PackagePath>build\x86\</PackagePath>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="$(OutputPath)\x64\*.dll;$(OutputPath)\x64\*.sys;">
+        <Pack>true</Pack>
+        <PackagePath>build\x64\</PackagePath>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="$(OutputPath)\*.pdb;">
+        <Pack>true</Pack>
+        <PackagePath>build\</PackagePath>
+      </Content>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="sc stop WinDivert1.4&#xD;&#xA;xcopy /E /Y /C &quot;$(ProjectDir)\Lib\WinDivert\$(PlatformName)\*.dll&quot; &quot;$(TargetDir)\$(PlatformName)\&quot;&#xD;&#xA;xcopy /E /Y /C &quot;$(ProjectDir)\Lib\WinDivert\$(PlatformName)\*.sys&quot; &quot;$(TargetDir)\$(PlatformName)\&quot;" />
+  </Target>
+
+</Project>
