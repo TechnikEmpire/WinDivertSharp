@@ -8,10 +8,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Threading;
 using WinDivertSharp;
-using WinDivertSharp.Extensions;
 using WinDivertSharp.WinAPI;
 
 namespace WinDivertSharpSandbox
@@ -93,12 +93,7 @@ namespace WinDivertSharpSandbox
 
             uint readLen = 0;
 
-            IPv4Header? ipv4Header = null;
-            IPv6Header? ipv6Header = null;
-            IcmpV4Header? icmpV4Header = null;
-            IcmpV6Header? icmpV6Header = null;
-            TcpHeader? tcpHeader = null;
-            UdpHeader? udpHeader = null;
+            WinDivertParseResult WD_PR;
 
             Span<byte> packetData = null;
 
@@ -111,15 +106,6 @@ namespace WinDivertSharpSandbox
             {
                 if (s_running)
                 {
-                    ipv4Header = null;
-                    ipv6Header = null;
-                    icmpV4Header = null;
-                    icmpV6Header = null;
-                    tcpHeader = null;
-                    udpHeader = null;
-
-                    packetData = null;
-
                     readLen = 0;
 
                     recvAsyncIoLen = 0;
@@ -151,8 +137,7 @@ namespace WinDivertSharpSandbox
                             continue;
                         }
 
-                        while (Kernel32.WaitForSingleObject(recvEvent, 1000) == (uint)WaitForSingleObjectResult.WaitTimeout)
-                            ;
+                        while (Kernel32.WaitForSingleObject(recvEvent, 1000) == (uint)WaitForSingleObjectResult.WaitTimeout) ;
 
                         if (!Kernel32.GetOverlappedResult(handle, ref recvOverlapped, ref recvAsyncIoLen, false))
                         {
@@ -168,20 +153,31 @@ namespace WinDivertSharpSandbox
 
                     Console.WriteLine("Read packet {0}", readLen);
 
-                    WinDivert.WinDivertHelperParsePacket(packet, readLen, ref ipv4Header, ref ipv6Header, ref icmpV4Header, ref icmpV6Header, ref tcpHeader, ref udpHeader, ref packetData);
-
+                    WD_PR = WinDivert.WinDivertHelperParsePacket(packet, readLen);
                     if (addr.Direction == WinDivertDirection.Inbound)
                     {
                         Console.WriteLine("inbound!");
                     }
 
-                    if (ipv4Header != null && tcpHeader != null)
+                    unsafe
                     {
-                        Console.WriteLine($"V4 TCP packet {addr.Direction} from {ipv4Header.Value.SrcAddr}:{tcpHeader.Value.SrcPort.SwapByteOrder()} to {ipv4Header.Value.DstAddr}:{tcpHeader.Value.DstPort.SwapByteOrder()}");
-                    }
-                    else if (ipv6Header != null && tcpHeader != null)
-                    {
-                        Console.WriteLine($"V4 TCP packet {addr.Direction} from {ipv6Header.Value.SrcAddr}:{tcpHeader.Value.SrcPort.SwapByteOrder()} to {ipv6Header.Value.DstAddr}:{tcpHeader.Value.DstPort.SwapByteOrder()}");
+                        if (WD_PR.IPv4Header != null && WD_PR.UdpHeader != null)
+                        {
+                            Console.WriteLine($"V4 UDP packet {addr.Direction} from {WD_PR.IPv4Header->SrcAddr}:{(ushort)IPAddress.HostToNetworkOrder((short)WD_PR.UdpHeader->SrcPort)} to {WD_PR.IPv4Header->DstAddr}:{(ushort)IPAddress.HostToNetworkOrder((short)WD_PR.UdpHeader->DstPort)}");
+                        }
+                        else if (WD_PR.IPv6Header != null && WD_PR.UdpHeader != null)
+                        {
+                            Console.WriteLine($"V6 UDP packet {addr.Direction} from {WD_PR.IPv6Header->SrcAddr}:{(ushort)IPAddress.HostToNetworkOrder((short)WD_PR.UdpHeader->SrcPort)} to {WD_PR.IPv6Header->DstAddr}:{(ushort)IPAddress.HostToNetworkOrder((short)WD_PR.UdpHeader->DstPort)}");
+                        }
+
+                        if (WD_PR.IPv4Header != null && WD_PR.TcpHeader != null)
+                        {
+                            Console.WriteLine($"V4 TCP packet {addr.Direction} from {WD_PR.IPv4Header->SrcAddr}:{(ushort)IPAddress.HostToNetworkOrder((short)WD_PR.TcpHeader->SrcPort)} to {WD_PR.IPv4Header->DstAddr}:{(ushort)IPAddress.HostToNetworkOrder((short)WD_PR.TcpHeader->DstPort)}");
+                        }
+                        else if (WD_PR.IPv6Header != null && WD_PR.TcpHeader != null)
+                        {
+                            Console.WriteLine($"V6 TCP packet {addr.Direction} from {WD_PR.IPv6Header->SrcAddr}:{(ushort)IPAddress.HostToNetworkOrder((short)WD_PR.TcpHeader->SrcPort)} to {WD_PR.IPv6Header->DstAddr}:{(ushort)IPAddress.HostToNetworkOrder((short)WD_PR.TcpHeader->DstPort)}");
+                        }
                     }
 
                     if (packetData != null)
