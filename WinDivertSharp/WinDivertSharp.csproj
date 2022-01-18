@@ -83,7 +83,7 @@
   </Target>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="$(ProjectDir)\stopWinDivert.bat&#xD;&#xA;xcopy /E /Y /C &quot;$(ProjectDir)\Lib\WinDivert\$(PlatformName)\*.dll&quot; &quot;$(TargetDir)\$(PlatformName)\&quot;&#xD;&#xA;xcopy /E /Y /C &quot;$(ProjectDir)\Lib\WinDivert\$(PlatformName)\*.sys&quot; &quot;$(TargetDir)\$(PlatformName)\&quot;" />
+    <Exec Command="..\..\..\stopWinDivert.bat&#xD;&#xA;xcopy /E /Y /C &quot;$(ProjectDir)\Lib\WinDivert\$(PlatformName)\*.dll&quot; &quot;$(TargetDir)\$(PlatformName)\&quot;&#xD;&#xA;xcopy /E /Y /C &quot;$(ProjectDir)\Lib\WinDivert\$(PlatformName)\*.sys&quot; &quot;$(TargetDir)\$(PlatformName)\&quot;" />
   </Target>
 
 </Project>
